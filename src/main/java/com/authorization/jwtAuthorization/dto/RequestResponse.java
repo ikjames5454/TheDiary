@@ -20,9 +20,12 @@ public class RequestResponse {
     private String expirationTime;
     private String name;
     private String email;
-    private String city;
-    private String role;
+    private String country;
+    private String state;
+    private String role = "USER";
     private String password;
+    private Long count;
     private Users users;
     private List<Users> usersList;
+    private List<CountryUserCount> countryUserCount;
 }

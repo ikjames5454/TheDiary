@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.authorization</groupId>
-	<artifactId>jwtAuthorization</artifactId>
+	<artifactId>TheDiaryApp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>jwtAuthorization</name>
 	<description>Demo project for Spring Boot</description>
@@ -91,7 +91,7 @@
 				<configuration>
 					<excludes>
 						<exclude>
-							<groupId>org.projectlombok</groupId>
+							<groupId>org.project-lombok</groupId>
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>

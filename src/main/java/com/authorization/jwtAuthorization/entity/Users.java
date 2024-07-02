@@ -1,11 +1,15 @@
 package com.authorization.jwtAuthorization.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -19,8 +23,17 @@ public class Users implements UserDetails {
     private String email;
     private String name;
     private String password;
-    private String city;
-    private String role;
+    private String country;
+    private String state;
+    private String role = "USER";
+    private Long userCount;
+    @OneToOne
+    @JoinColumn(name = "diary_id")
+    @ToString.Exclude
+    @JsonBackReference(value = "diary-user")
+    private Diary diary;
+    private LocalDate createdAt = LocalDate.now();
+    private LocalTime createAt = LocalTime.now();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

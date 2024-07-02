@@ -1,5 +1,6 @@
 package com.authorization.jwtAuthorization.service;
 
+import com.authorization.jwtAuthorization.dto.CountryUserCount;
 import com.authorization.jwtAuthorization.dto.RequestResponse;
 import com.authorization.jwtAuthorization.entity.Users;
 import com.authorization.jwtAuthorization.repository.UsersRepo;
@@ -9,6 +10,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +28,9 @@ public class UserManagementServiceImpl implements UserManagementService{
     private AuthenticationManager authenticationManager;
 
     @Autowired
+    private Verification verification;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
     @Override
     public RequestResponse register(RequestResponse register) {
@@ -37,9 +42,10 @@ public class UserManagementServiceImpl implements UserManagementService{
             Users newUsers = new Users();
             newUsers.setEmail(register.getEmail());
             newUsers.setName(register.getName());
-            newUsers.setPassword(passwordEncoder.encode(register.getPassword()));
             newUsers.setRole(register.getRole());
-            newUsers.setCity(register.getCity());
+            newUsers.setCountry(register.getCountry());
+            newUsers.setState(register.getState());
+            newUsers.setPassword(passwordEncoder.encode(register.getPassword()));
             Users registeredUser = usersRepo.save(newUsers);
             if(registeredUser.getId() > 0){
                 response.setUsers((registeredUser));
@@ -115,6 +121,7 @@ public class UserManagementServiceImpl implements UserManagementService{
             } else{
                 response.setStatusCode(404);
                 response.setMessage("No users found");
+                response.setUsersList(new ArrayList<>());
             }
             return response;
         }catch (Exception e){
@@ -173,7 +180,8 @@ public class UserManagementServiceImpl implements UserManagementService{
                 currentUser.setEmail(updatedUsers.getEmail());
                 currentUser.setName(updatedUsers.getName());
                 currentUser.setRole(updatedUsers.getRole());
-                currentUser.setCity(updatedUsers.getCity());
+                currentUser.setCountry(updatedUsers.getCountry());
+                currentUser.setState(updatedUsers.getState());
                 if(updatedUsers.getPassword() != null && !updatedUsers.getPassword().isEmpty()){
                     currentUser.setPassword(passwordEncoder.encode(updatedUsers.getPassword()));
                 }
@@ -213,6 +221,98 @@ public class UserManagementServiceImpl implements UserManagementService{
         }
         return response;
 
+    }
+
+    @Override
+    public RequestResponse getUserByJwtToken(String jwt) {
+        RequestResponse response = new RequestResponse();
+        try{
+            String email = jwtUtils.extractUsername(jwt);
+            Optional<Users> optionalUser = usersRepo.findByEmail(email);
+
+            if (optionalUser.isPresent()) {
+                response.setUsers(optionalUser.get());
+                response.setStatusCode(200);
+                response.setMessage("User found successfully");
+            } else {
+                response.setStatusCode(404);
+                response.setMessage("User not found");
+            }
+        return response;
+    }catch (Exception e){
+            response.setStatusCode(500);
+            response.setError("Error Occurred while fetching getting user " + e.getMessage());
+        }
+        return response;
+    }
+
+    @Override
+    public RequestResponse numberOfUsers() {
+        RequestResponse response = new RequestResponse();
+        Long count = usersRepo.count();
+        response.setCount(count);
+        response.setStatusCode(200);
+        return response;
+    }
+
+    @Override
+    public RequestResponse findByCountry(String country) {
+        RequestResponse response = new RequestResponse();
+        try {
+            List<Users> usersByCountry = verification.findByCountry(country);
+            response.setStatusCode(200);
+            response.setMessage("List of users by country fetched successful");
+            response.setUsersList(usersByCountry);
+
+        }catch (Exception e){
+            response.setStatusCode(500);
+            response.setError("Error Occurred while fetching getting user " + e.getMessage());
+            response.setUsersList(new ArrayList<>());
+        }
+        return response;
+    }
+
+    @Override
+    public  RequestResponse totalNumberOfUsersByCountry(String county) {
+        RequestResponse response = new RequestResponse();
+        try {
+            Long count = usersRepo.countByCountry(county);
+            response.setStatusCode(200);
+            response.setMessage("number of users by country fetched successful");
+            response.setCount(count);
+        }catch (RuntimeException e){
+            response.setStatusCode(500);
+            response.setError("Error Occurred while fetching number of users by country " + e.getMessage());
+        }
+        return response;
+    }
+
+    @Override
+    public RequestResponse countUsersByCountry() {
+        RequestResponse response = new RequestResponse();
+        try{
+            List<CountryUserCount> countries = usersRepo.countUsersByCountry();
+            response.setMessage("number of users by country fetched successful");
+            response.setCountryUserCount(countries);
+        }catch (RuntimeException e){
+            response.setStatusCode(500);
+            response.setError("Error Occurred while fetching number of users and their countries " + e.getMessage());
+            response.setUsersList(new ArrayList<>());
+        }
+        return response;
+    }
+
+    public List<Users> country(String country) {
+        List<Users> same = usersRepo.findAll();
+        List<Users> add = new ArrayList<>();
+        for (Users users: same){
+            if(users.getCountry().equalsIgnoreCase(country)){
+                add.add(users);
+
+            }
+        }
+        if(!add.isEmpty()) return add;
+        else return new ArrayList<>();
     }
 
 

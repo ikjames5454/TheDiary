@@ -19,7 +19,7 @@ public class JWTUtils {
     private static final long EXPIRATION_TIME = 86400000;
 
     public JWTUtils(){
-        String secretString = "45637346789474859575674637382098345627212456780987654321234567890123456789090987654321";
+        String secretString = "45637346789474859575674637382098345627212456780987654321234567890123456789090987654321657445633746755986645454646454645433933645402837987564738";
         byte[] keyBytes = Base64.getDecoder().decode(secretString.getBytes(StandardCharsets.UTF_8));
         this.key = new SecretKeySpec(keyBytes, "HmacSHA256");
 
@@ -51,6 +51,7 @@ public class JWTUtils {
     }
 
     public <T> T extractClaims(String token, Function<Claims, T> claimsTFunction){
+        token = sanitizeToken(token);
         return claimsTFunction.apply(Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload());
     }
 
@@ -59,6 +60,15 @@ public class JWTUtils {
         return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
 
 
+    }
+
+    private String sanitizeToken(String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7).trim();
+        } else {
+            token = token.trim();
+        }
+        return token;
     }
 
     public boolean isTokenExpired(String token){

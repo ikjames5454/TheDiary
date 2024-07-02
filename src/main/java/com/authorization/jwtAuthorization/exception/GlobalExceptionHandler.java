@@ -1,4 +1,4 @@
-package com.authorization.jwtAuthorization.dto.exception;
+package com.authorization.jwtAuthorization.exception;
 
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
