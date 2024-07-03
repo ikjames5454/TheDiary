@@ -1,7 +1,11 @@
-FROM maven:3.8.7 as build
+FROM maven:3.8.7 AS build
+
 COPY . .
-RUN mvn  package
+
+RUN mvn package
 
 FROM openjdk:17
+
 COPY --from=build target/*.jar app.jar
-ENTRYPOINT ["java", "-jar",  "app.jar"]
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
