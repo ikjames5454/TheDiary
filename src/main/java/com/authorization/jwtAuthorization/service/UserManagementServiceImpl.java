@@ -77,11 +77,15 @@ public class UserManagementServiceImpl implements UserManagementService{
                 response.setMessage("Successfully logged In");
                 response.setRole(user.getRole());
 
+
+            return response;
+
         }catch (Exception e){
             response.setStatusCode(500);
             response.setError("Invalid login Credentials");
+            return response;
         }
-        return response;
+
     }
 
     @Override
